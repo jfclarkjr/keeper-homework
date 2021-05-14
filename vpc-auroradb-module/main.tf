@@ -17,7 +17,7 @@
 
 # Create a VPC
 resource "aws_vpc" "main-vpc" {
-  cidr_block = "${var.vpc_cidr}"
+  cidr_block           = "${var.vpc_cidr}"
   enable_dns_hostnames = true
 
   tags = {
@@ -27,9 +27,9 @@ resource "aws_vpc" "main-vpc" {
 
 # Create the private subnets
 resource "aws_subnet" "private_subnet" {
-  count = length(var.priv_subnet_list)
-  vpc_id     = aws_vpc.main-vpc.id
-  cidr_block = var.priv_subnet_list[count.index]
+  count             = length(var.priv_subnet_list)
+  vpc_id            = aws_vpc.main-vpc.id
+  cidr_block        = var.priv_subnet_list[count.index]
   availability_zone = var.az_list[count.index]
 
   tags = {
@@ -39,10 +39,10 @@ resource "aws_subnet" "private_subnet" {
 
 # Create the public subnets
 resource "aws_subnet" "public_subnet" {
-  count = length(var.public_subnet_list)
-  vpc_id     = aws_vpc.main-vpc.id
-  cidr_block = var.public_subnet_list[count.index]
-  availability_zone = var.az_list[count.index]
+  count                   = length(var.public_subnet_list)
+  vpc_id                  = aws_vpc.main-vpc.id
+  cidr_block              = var.public_subnet_list[count.index]
+  availability_zone       = var.az_list[count.index]
   map_public_ip_on_launch = true
 
   tags = {
@@ -52,9 +52,9 @@ resource "aws_subnet" "public_subnet" {
 
 # Create the DB Subnet Group
 resource "aws_db_subnet_group" "subnet-group-auroradb" {
-  name       = "subnet-group-${var.env_name}"
+  name        = "subnet-group-${var.env_name}"
   description = "Terraform RDS subnet group"
-  subnet_ids = aws_subnet.private_subnet[*].id
+  subnet_ids  = aws_subnet.private_subnet[*].id
 
   tags = {
     Name = "Database Subnet Group - ${var.env_name}"
@@ -86,7 +86,7 @@ resource "aws_route_table" "rt" {
 
 # Associate the route table with the public subnets
 resource "aws_route_table_association" "a" {
-  count = length(var.public_subnet_list)
+  count          = length(var.public_subnet_list)
   subnet_id      = "${aws_subnet.public_subnet[count.index].id}"
   route_table_id = aws_route_table.rt.id
 }
@@ -147,7 +147,7 @@ resource "aws_security_group" "allow_db_access" {
 
 # Create 
 resource "aws_network_interface" "ec2-net" {
-  subnet_id   = aws_subnet.public_subnet[0].id
+  subnet_id       = aws_subnet.public_subnet[0].id
   security_groups = [aws_security_group.allow_ssh.id]
 
   tags = {
@@ -159,7 +159,7 @@ resource "aws_network_interface" "ec2-net" {
 # in the cuurent region
 data "aws_ami" "amazon-linux2" {
  most_recent = true
- owners = ["amazon"]
+ owners      = ["amazon"]
 
  filter {
    name   = "name"
@@ -171,7 +171,7 @@ data "aws_ami" "amazon-linux2" {
 resource "aws_instance" "ec2-linux-vm" {
   ami           = "${data.aws_ami.amazon-linux2.id}"
   instance_type = "t2.micro"
-  key_name = "${var.keypair_name}"
+  key_name      = "${var.keypair_name}"
 
   network_interface {
     network_interface_id = aws_network_interface.ec2-net.id
@@ -193,18 +193,18 @@ resource "aws_rds_cluster" "aur_cluster" {
   master_password         = "${var.db_master_password}"
   backup_retention_period = 5
   preferred_backup_window = "08:00-10:00"
-  db_subnet_group_name = aws_db_subnet_group.subnet-group-auroradb.name
-  vpc_security_group_ids = [aws_security_group.allow_db_access.id]
-  skip_final_snapshot = true
+  db_subnet_group_name    = aws_db_subnet_group.subnet-group-auroradb.name
+  vpc_security_group_ids  = [aws_security_group.allow_db_access.id]
+  skip_final_snapshot     = true
 }
 
 resource "aws_rds_cluster_instance" "cluster_instances" {
-  count              = 2
-  identifier         = "aur-clust-inst-${var.env_name}-${count.index}"
-  cluster_identifier = aws_rds_cluster.aur_cluster.id
-  instance_class     = "db.t2.small"
-  engine             = aws_rds_cluster.aur_cluster.engine
-  engine_version     = aws_rds_cluster.aur_cluster.engine_version
-  publicly_accessible = false
+  count                = 2
+  identifier           = "aur-clust-inst-${var.env_name}-${count.index}"
+  cluster_identifier   = aws_rds_cluster.aur_cluster.id
+  instance_class       = "db.t2.small"
+  engine               = aws_rds_cluster.aur_cluster.engine
+  engine_version       = aws_rds_cluster.aur_cluster.engine_version
+  publicly_accessible  = false
   db_subnet_group_name = aws_db_subnet_group.subnet-group-auroradb.name
 }

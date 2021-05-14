@@ -38,8 +38,8 @@ provider "aws" {
 # a command line argument at deployment time
 variable "db_master_password" {
   description = "The master password for the AuroraDB cluster"
-  type = string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 
 # VPC Aurora Module
