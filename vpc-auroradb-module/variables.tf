@@ -45,3 +45,10 @@ variable "az_list" {
   type = list(string)
   default = []
 }
+
+# The master database password, to be passed as 
+# a command line argument at deployment time
+variable "db_master_password" {
+  description = "The master password for the AuroraDB cluster"
+  type = string
+}
