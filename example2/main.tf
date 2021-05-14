@@ -34,6 +34,14 @@ provider "aws" {
   region = local.myRegion
 }
 
+# The master database password, to be passed as
+# a command line argument at deployment time
+variable "db_master_password" {
+  description = "The master password for the AuroraDB cluster"
+  type = string
+  sensitive = true
+}
+
 # VPC Aurora Module
 module "vpc_auroadb_module" {
   source = "../vpc-auroradb-module"
@@ -41,6 +49,9 @@ module "vpc_auroadb_module" {
   # Environment name - If using the vpc-module for multiple environments
   # within a single region, the env_name must be unique for each environment
   env_name = "example2"
+
+  # Set the database master password
+  db_master_password = var.db_master_password
 
   # Provide the name of an SSH keypair that
   # exists in the designated AWS region

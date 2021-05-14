@@ -26,6 +26,9 @@ This Terraform code consists of a module that can be used to spin up multiple AW
 To use one of the examples:
 1. cd into the example directory
 2. Modify the `main.tf` as desired
+3. Set the AuroraDB master password as environment variable `TF_VAR_db_master_password`
+   - Typically this would be done via your orchestration tool (e.g. Jenkins)
+   - To manually do this, run the command `export TF_VAR_db_master_password=<Your Complex Password>`
 3. Run the following commands:
 ```bash
 terraform init
