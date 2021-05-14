@@ -24,7 +24,7 @@ This Terraform code consists of a module that can be used to spin up multiple AW
 
 ### How to use the examples
 To use one of the examples:
-1. cd into the directory
+1. cd into the example directory
 2. Modify the `main.tf` as desired
 3. Run the following commands:
 ```bash
